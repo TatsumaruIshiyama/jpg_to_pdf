@@ -1,5 +1,5 @@
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageOps
 import io
 
 # --- セッション状態の初期化（初回のみ実行） ---
@@ -27,15 +27,17 @@ if st.session_state.uploaded_files:
     st.write("アップロードされた画像")
     images = []
     for uploaded_file in st.session_state.uploaded_files:
-        img = Image.open(uploaded_file).convert("RGB")
+        img = Image.open(uploaded_file)
+        img = ImageOps.exif_transpose(img)  # ← ここでExif情報を考慮して正しい向きに変換！
+        img = img.convert("RGB")  # PDF用にRGB変換
         images.append(img)
-        st.image(img, caption=uploaded_file.name, use_container_width=True)  # 警告を解消！
+        st.image(img, caption=uploaded_file.name, use_container_width=True)
 
     # PDFのファイル名入力
     file_name = st.text_input("保存するPDFのファイル名", st.session_state.file_name)
 
     # --- PDF変換（再実行を最小限にするため、キャッシュする） ---
-    if st.button("PDFに変換"):
+    if st.button("PDFに変換してダウンロード"):
         if images and st.session_state.pdf_bytes is None:
             pdf_bytes = io.BytesIO()
             images[0].save(pdf_bytes, format="PDF", save_all=True, append_images=images[1:])
