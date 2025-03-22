@@ -35,7 +35,7 @@ if st.session_state.uploaded_files:
     file_name = st.text_input("保存するPDFのファイル名", st.session_state.file_name)
 
     # --- PDF変換（再実行を最小限にするため、キャッシュする） ---
-    if st.button("PDFに変換してダウンロード"):
+    if st.button("PDFに変換"):
         if images and st.session_state.pdf_bytes is None:
             pdf_bytes = io.BytesIO()
             images[0].save(pdf_bytes, format="PDF", save_all=True, append_images=images[1:])
